@@ -1,7 +1,8 @@
-namespace Model.Quiz; 
-using Model.Question; 
+namespace Model.Quiz;
 
-public class Quiz
+using Model.Question;
+
+public class Quizz
 {
     public int Id { get; set; }
     public string Title { get; set; } = "";

@@ -1,4 +1,4 @@
-namespace Model.ParticipantAnswer; 
+namespace Model.ParticipantAnswer;
 
 public class ParticipantAnswer
 {
