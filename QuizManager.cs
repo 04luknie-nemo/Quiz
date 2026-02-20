@@ -1,15 +1,19 @@
+using System.Data;
 using Model.ParticipantAnswer;
 using Model.Question;
 using Model.Quiz;
 
 public class QuizManager
 {
-    Dictionary<string, Quizz> quizzes;
-    Quizz quizz = new Quizz()
+    Dictionary<int, Quizz> quizzes = [];
+
+    public QuizManager()
     {
-        Id = 1,
-        Title = "Enkät v8",
-        Questions = new List<Question>
+        Quizz quizz = new Quizz()
+        {
+            Id = 1,
+            Title = "Enkät v8",
+            Questions = new List<Question>
         {
             new Question
             {
@@ -32,11 +36,23 @@ public class QuizManager
                 VoteCount = new List<int> { 0, 2, 0, 1 }
             },
         },
-        CurrentQuestionIndex = 0
-    };
-    public Quizz GetQuiz()
+            CurrentQuestionIndex = 0
+
+        };
+
+            // quizzes.Add(quizz.Id, quizz);
+            quizzes[quizz.Id] = quizz;
+    }
+
+
+
+    public void GetQuiz(int id)
     {
-        return quizz;
+
+
+        // return quizz;
+
+
     }
     public void SubmitAnswer()
     {
