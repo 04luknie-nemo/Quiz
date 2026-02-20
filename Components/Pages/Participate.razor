@@ -1,44 +1,59 @@
-@page "/participate"
+@page "/participate/{QuizId}"
 @using Model.Quiz
 @rendermode InteractiveServer
 @inject QuizManager manager
+@implements IDisposable
 
 <PageTitle>Delta</PageTitle>
 <h1>Deltagare</h1>
 
-@if (quiz1 == null)
+@if (quiz == null)
 {
     <p>Laddar quiz...</p>
 }
 else
 {
-    <p>@quiz1.Title</p>
-    <p>@quiz1.Questions[quiz1.CurrentQuestionIndex].Text</p>
+    <p>@quiz.Title</p>
+    <p>@quiz.Questions[quiz.CurrentQuestionIndex].Text</p>
 
-    @for (int i = 0; i < quiz1.Questions[quiz1.CurrentQuestionIndex].Answers.Count; i++)
+    @for (int i = 0; i < quiz.Questions[quiz.CurrentQuestionIndex].Answers.Count; i++)
     {
         int index = i;
-        string? answer = quiz1.Questions[quiz1.CurrentQuestionIndex].Answers[i];
-        <button @onclick="() => Submit(quiz1.Questions[quiz1.CurrentQuestionIndex].Id, index)">@answer</button>
+        string? answer = quiz.Questions[quiz.CurrentQuestionIndex].Answers[i];
+        <button @onclick="() => Submit(quiz.Questions[quiz.CurrentQuestionIndex].Id, index)">@answer</button>
+    }
+    @if (selectedAnswerIndex != null)
+    {
+        if (isCorrect)
+        {
+            <p style="color:green">Korrekt svar!</p>
+        }
+        else
+        {
+            <p style="color:red">Fel svar</p>
+        }
     }
 }
 @code
 {
     [Parameter]
-    public string? QuizId { get; set; } = "1";
+    public string? QuizId { get; set; }
 
-    private Quizz? quiz1;
+    private Quizz? quiz;
+    private bool isCorrect;
+    private int? selectedAnswerIndex;
+    private bool _subscribed;
 
     protected override void OnParametersSet()
     {
-        if (!string.IsNullOrWhiteSpace(QuizId))
+        Console.WriteLine($"QuizId: {QuizId}");
+        if (string.IsNullOrWhiteSpace(QuizId)) return;
+        quiz = manager.GetQuizById(QuizId);
+        Console.WriteLine($"Quiz hittad: {quiz?.Title}");
+        if (!_subscribed)
         {
             manager.OnStateChanged += Refresh;
-            quiz1 = manager.GetQuizById(QuizId);
-        }
-        else
-        {
-            return;
+            _subscribed = true;
         }
     }
 
@@ -48,7 +63,21 @@ else
     }
     public void Submit(string participentId, int answerIndex)
     {
-        @* var questionId = quiz1.Questions[quiz1.CurrentQuestionIndex].Id; *@
-        manager.SubmitAnswer(participentId, answerIndex, quiz1.Questions[quiz1.CurrentQuestionIndex]);
+        if (QuizId == null)
+            return;
+
+        selectedAnswerIndex = answerIndex;
+
+        manager.SubmitAnswer(participentId, answerIndex, QuizId);
+
+        isCorrect = manager.CheckCorrectAnswer(QuizId, answerIndex);
+
+        if (isCorrect)
+        {
+            manager.NextQuestion(QuizId);
+            selectedAnswerIndex = null;
+        }
     }
+    public void Dispose() =>
+        manager.OnStateChanged -= Refresh;
 }
