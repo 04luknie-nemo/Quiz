@@ -1,5 +1,4 @@
-using System.Data;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using System.Text.Json;
 using Model.ParticipantAnswer;
 using Model.Question;
 using Model.Quiz;
@@ -12,38 +11,59 @@ public class QuizManager
 
     public QuizManager()
     {
-        Quizz quizz = new Quizz()
-        {
-            Id = "1",
-            Title = "Enkät v8",
-            Questions = new List<Question>
-            {
-                new Question
-                {
-                    Id = "1",
-                    Text = "Vilket djur är känt för att vara världens snabbaste på land?",
-                    Answers = new List<string>
-                    {
-                        "Lejon",
-                        "Gepard",
-                        "Antilop",
-                        "Struts"
-                    },
-                    CorrectAnswer = 1, // Index 1 = "Gepard"
-                    participantAnswers = new List<ParticipantAnswer>
-                    {
-                        new ParticipantAnswer { ParticipantId = "1", AnswerIndex = 1, TimeStamp = DateTime.Now },
-                        new ParticipantAnswer { ParticipantId = "2", AnswerIndex = 3, TimeStamp = DateTime.Now },
-                        new ParticipantAnswer { ParticipantId = "3", AnswerIndex = 1, TimeStamp = DateTime.Now }
-                    },
-                    VoteCount = new List<int> { 0, 2, 0, 1 }
-                },
-            },
-            CurrentQuestionIndex = 0
+        // string? quizzPath = Path.Combine(AppContext.BaseDirectory, "Data", "quizzes.json");
 
-        };
-        // quizzes.Add(quizz.Id, quizz);
-        quizzes[quizz.Id] = quizz;
+        // if (!File.Exists(quizzPath))
+        //     return;
+
+        // string? json = File.ReadAllText(quizzPath);
+
+        // var loaded = JsonSerializer.Deserialize<List<Quizz>>(json,
+        //     new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        // if (loaded == null)
+        //     return;
+
+        // foreach (Quizz quiz in loaded)
+        // {
+        //     foreach (Question q in quiz.Questions)
+        //     {
+        //         q.participantAnswers = new();
+        //         q.VoteCount = Enumerable.Repeat(0, q.Answers.Count).ToList();
+        //     }
+        //     quizzes[quiz.Id] = quiz;
+        // }
+        // Quizz quizz = new Quizz()
+        // {
+        //     Id = "1",
+        //     Title = "Enkät v8",
+        //     Questions = new List<Question>
+        //     {
+        //         new Question
+        //         {
+        //             Id = "1",
+        //             Text = "Vilket djur är känt för att vara världens snabbaste på land?",
+        //             Answers = new List<string>
+        //             {
+        //                 "Lejon",
+        //                 "Gepard",
+        //                 "Antilop",
+        //                 "Struts"
+        //             },
+        //             CorrectAnswer = 1, // Index 1 = "Gepard"
+        //             participantAnswers = new List<ParticipantAnswer>
+        //             {
+        //                 new ParticipantAnswer { ParticipantId = "1", AnswerIndex = 1, TimeStamp = DateTime.Now },
+        //                 new ParticipantAnswer { ParticipantId = "2", AnswerIndex = 3, TimeStamp = DateTime.Now },
+        //                 new ParticipantAnswer { ParticipantId = "3", AnswerIndex = 1, TimeStamp = DateTime.Now }
+        //             },
+        //             VoteCount = new List<int> { 0, 2, 0, 1 }
+        //         },
+        //     },
+        //     CurrentQuestionIndex = 0
+
+        // };
+        // quizzes[quizz.Id] = quizz;
     }
 
     public Quizz? GetQuizById(string id)
@@ -58,9 +78,8 @@ public class QuizManager
         }
     }
 
-    public void SubmitAnswer(string participantId, int answerIndex, Question question)
+    public void SubmitAnswer(string quizId, int answerIndex, string participantId)
     {
-        // quizzes[questionId].Questions[quizzes[questionId].CurrentQuestionIndex].participantAnswers.Add(new ParticipantAnswer() { ParticipantId = participantId, AnswerIndex = answerIndex });
         if (!quizzes.TryGetValue(quizId, out var quizz))
         {
             return;
@@ -89,13 +108,16 @@ public class QuizManager
         }
         OnStateChanged?.Invoke();
     }
-    // public void SubmitAnswer(string participantId, int answerIndex, string questionId)
-    // {
-    //     quizzes[questionId].Questions[quizzes[questionId].CurrentQuestionIndex].participantAnswers.Add(new ParticipantAnswer() { ParticipantId = participantId, AnswerIndex = answerIndex });
+    public bool CheckCorrectAnswer(string quizId, int answerIndex)
+    {
+        if (!quizzes.TryGetValue(quizId, out var quiz))
+            return false;
+        var question = quiz.Questions[quiz.CurrentQuestionIndex];
 
-    //     Console.WriteLine("XXXXXXXXXXXXxxxxXXXXXXXXXXXXXXXXXx");
-    //     Console.WriteLine(quizzes[questionId].Questions[quizzes[questionId].CurrentQuestionIndex].participantAnswers.LastOrDefault().AnswerIndex);
-    // }
+        bool isCorrect = question.CorrectAnswer == answerIndex;
+
+        return isCorrect;
+    }
     public void NextQuestion()
     {
 
