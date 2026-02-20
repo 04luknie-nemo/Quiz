@@ -13,13 +13,42 @@
 else
 {
     <p>@quiz1.Title</p>
+    <p>@quiz1.Questions[quiz1.CurrentQuestionIndex].Text</p>
+
+    @for (int i = 0; i < quiz1.Questions[quiz1.CurrentQuestionIndex].Answers.Count; i++)
+    {
+        int index = i;
+        string? answer = quiz1.Questions[quiz1.CurrentQuestionIndex].Answers[i];
+        <button @onclick="() => Submit(quiz1.Questions[quiz1.CurrentQuestionIndex].Id, index)">@answer</button>
+    }
 }
 @code
 {
+    [Parameter]
+    public string? QuizId { get; set; } = "1";
+
     private Quizz? quiz1;
 
-    protected override void OnInitialized()
+    protected override void OnParametersSet()
     {
-        quiz1 = manager.GetQuiz();
+        if (!string.IsNullOrWhiteSpace(QuizId))
+        {
+            manager.OnStateChanged += Refresh;
+            quiz1 = manager.GetQuizById(QuizId);
+        }
+        else
+        {
+            return;
+        }
+    }
+
+    public void Refresh()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+    public void Submit(string participentId, int answerIndex)
+    {
+        @* var questionId = quiz1.Questions[quiz1.CurrentQuestionIndex].Id; *@
+        manager.SubmitAnswer(participentId, answerIndex, quiz1.Questions[quiz1.CurrentQuestionIndex]);
     }
 }
