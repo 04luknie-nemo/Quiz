@@ -1,0 +1,25 @@
+@page "/participate"
+@using Model.Quiz
+@rendermode InteractiveServer
+@inject QuizManager manager
+
+<PageTitle>Delta</PageTitle>
+<h1>Deltagare</h1>
+
+@if (quiz1 == null)
+{
+    <p>Laddar quiz...</p>
+}
+else
+{
+    <p>@quiz1.Title</p>
+}
+@code
+{
+    private Quizz? quiz1;
+
+    protected override void OnInitialized()
+    {
+        quiz1 = manager.GetQuiz();
+    }
+}

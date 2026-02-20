@@ -1,7 +1,30 @@
 ﻿@page "/"
+@inject NavigationManager Nav
+@rendermode InteractiveServer
 
 <PageTitle>Home</PageTitle>
 
 <h1>Hello, world!</h1>
 
-Welcome to your new app.
+Welcome to Quiz App.
+
+<button @onclick="ShowParticipatePage"
+        style="width:100%; padding:10px; background:#89b4fa; color:#1e1e2e; border:none; border-radius:8px; cursor:pointer; margin-bottom:10px; font-weight:bold;">
+    Participate
+</button>
+<button @onclick="ShowPresentPage"
+        style="width:100%; padding:10px; background:#89b4fa; color:#1e1e2e; border:none; border-radius:8px; cursor:pointer; margin-bottom:10px; font-weight:bold;">
+    Present
+</button>
+
+@code
+{
+    private void ShowParticipatePage()
+    {
+        Nav.NavigateTo("/participate");
+    }
+    private void ShowPresentPage()
+    {
+        Nav.NavigateTo("/presentpage");
+    }
+}
