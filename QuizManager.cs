@@ -11,28 +11,28 @@ public class QuizManager
 
     public QuizManager()
     {
-        // string? quizzPath = Path.Combine(AppContext.BaseDirectory, "Data", "quizzes.json");
+        string? quizzPath = Path.Combine(AppContext.BaseDirectory, "Data", "quizzes.json");
 
-        // if (!File.Exists(quizzPath))
-        //     return;
+        if (!File.Exists(quizzPath))
+            return;
 
-        // string? json = File.ReadAllText(quizzPath);
+        string? json = File.ReadAllText(quizzPath);
 
-        // var loaded = JsonSerializer.Deserialize<List<Quizz>>(json,
-        //     new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        var loaded = JsonSerializer.Deserialize<List<Quizz>>(json,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-        // if (loaded == null)
-        //     return;
+        if (loaded == null)
+            return;
 
-        // foreach (Quizz quiz in loaded)
-        // {
-        //     foreach (Question q in quiz.Questions)
-        //     {
-        //         q.participantAnswers = new();
-        //         q.VoteCount = Enumerable.Repeat(0, q.Answers.Count).ToList();
-        //     }
-        //     quizzes[quiz.Id] = quiz;
-        // }
+        foreach (Quizz quiz in loaded)
+        {
+            foreach (Question q in quiz.Questions)
+            {
+                q.participantAnswers = new();
+                q.VoteCount = Enumerable.Repeat(0, q.Answers.Count).ToList();
+            }
+            quizzes[quiz.Id] = quiz;
+        }
         // Quizz quizz = new Quizz()
         // {
         //     Id = "1",
