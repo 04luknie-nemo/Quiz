@@ -1,0 +1,11 @@
+namespace Model.Question; 
+using Model.ParticipantAnswer;
+public class Question
+{
+    public int Id { get; set; }
+    public string Text { get; set; } = ""; 
+    public List<string> Answers { get; set; }
+    public int CurrectAnswer { get; set; }
+    public List<ParticipantAnswer> participantAnswers { get; set; }
+    public List<int> VoteCount { get; set; }
+}
