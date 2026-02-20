@@ -1,7 +1,8 @@
-@page "/participate"
+@page "/participate/{QuizId}"
 @using Model.Quiz
 @rendermode InteractiveServer
 @inject QuizManager manager
+@implements IDisposable
 
 <PageTitle>Delta</PageTitle>
 <h1>Deltagare</h1>
@@ -26,7 +27,6 @@ else
         if (isCorrect)
         {
             <p style="color:green">Korrekt svar!</p>
-            ShowNextQuestion();
         }
         else
         {
@@ -37,22 +37,23 @@ else
 @code
 {
     [Parameter]
-    public string? QuizId { get; set; } = "1";
+    public string? QuizId { get; set; }
 
     private Quizz? quiz;
     private bool isCorrect;
     private int? selectedAnswerIndex;
+    private bool _subscribed;
 
     protected override void OnParametersSet()
     {
-        if (!string.IsNullOrWhiteSpace(QuizId))
+        Console.WriteLine($"QuizId: {QuizId}");
+        if (string.IsNullOrWhiteSpace(QuizId)) return;
+        quiz = manager.GetQuizById(QuizId);
+        Console.WriteLine($"Quiz hittad: {quiz?.Title}");
+        if (!_subscribed)
         {
             manager.OnStateChanged += Refresh;
-            quiz = manager.GetQuizById(QuizId);
-        }
-        else
-        {
-            return;
+            _subscribed = true;
         }
     }
 
@@ -62,7 +63,6 @@ else
     }
     public void Submit(string participentId, int answerIndex)
     {
-        @* var questionId = quiz1.Questions[quiz1.CurrentQuestionIndex].Id; *@
         if (QuizId == null)
             return;
 
@@ -71,13 +71,13 @@ else
         manager.SubmitAnswer(participentId, answerIndex, QuizId);
 
         isCorrect = manager.CheckCorrectAnswer(QuizId, answerIndex);
+
+        if (isCorrect)
+        {
+            manager.NextQuestion(QuizId);
+            selectedAnswerIndex = null;
+        }
     }
     public void Dispose() =>
         manager.OnStateChanged -= Refresh;
-
-    @* public void ShowNextQuestion()
-    {
-        Refresh();
-        manager.NextQuestion();
-    } *@
 }

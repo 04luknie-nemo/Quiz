@@ -78,18 +78,16 @@ public class QuizManager
         }
     }
 
-    public void SubmitAnswer(string quizId, int answerIndex, string participantId)
+    public void SubmitAnswer(string participantId, int answerIndex, string quizId)
     {
-        if (!quizzes.TryGetValue(quizId, out var quizz))
-        {
+        if (!quizzes.TryGetValue(quizId, out var quiz))
             return;
-        }
-        if (quizz.Questions.Count == 0)
-        {
+        if (quiz.Questions.Count == 0)
             return;
-        }
-        var question = quizz.Questions[quizz.CurrentQuestionIndex];
-
+        var question = quiz.Questions[quiz.CurrentQuestionIndex];
+        bool alreadyAnswered = question.participantAnswers.Any(a => a.ParticipantId == participantId);
+        if (alreadyAnswered)
+            return;
         var answer = new ParticipantAnswer
         {
             ParticipantId = participantId,
@@ -97,15 +95,8 @@ public class QuizManager
             AnswerIndex = answerIndex,
             TimeStamp = DateTime.UtcNow
         };
-
         question.participantAnswers.Add(answer);
-        Console.WriteLine("Answer added!");
-
-        var last = question.participantAnswers.LastOrDefault();
-        if (last != null)
-        {
-            Console.WriteLine(last.AnswerIndex);
-        }
+        question.VoteCount[answerIndex]++;
         OnStateChanged?.Invoke();
     }
     public bool CheckCorrectAnswer(string quizId, int answerIndex)
@@ -118,8 +109,12 @@ public class QuizManager
 
         return isCorrect;
     }
-    public void NextQuestion()
+    public void NextQuestion(string quizId)
     {
-
+        if (!quizzes.TryGetValue(quizId, out var quiz))
+            return;
+        if (quiz.CurrentQuestionIndex < quiz.Questions.Count - 1)
+            quiz.CurrentQuestionIndex++;
+        OnStateChanged?.Invoke();
     }
 }

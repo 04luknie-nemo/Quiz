@@ -6,6 +6,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+// Ändrar hur lång tid gracefult shutdown körs
+builder.Host.ConfigureHostOptions(options =>
+{
+    options.ShutdownTimeout = TimeSpan.FromSeconds(2);
+});
+
 builder.Services.AddSingleton<QuizManager>();
 
 var app = builder.Build();
